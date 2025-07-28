@@ -3,28 +3,30 @@ from langchain_openai import ChatOpenAI
 from langchain_core.tools import tool
 from langgraph.prebuilt import create_react_agent
 from dotenv import load_dotenv, find_dotenv
-import os
 
 load_dotenv(find_dotenv())
-print("🔐 API Key cargada:", os.getenv("OPENAI_API_KEY"))
 
 @tool
-def calculator(inputs: dict) -> str:
+def calculator(a:float, b:float) -> str:
     """
-    Useful for performing basic arithmetic calculations with numbers.
-    Expects input like: {"a": 5, "b": 3}
+    Useful for performing basic arithmeric calculations with numbers.
     """
-    a = inputs.get("a")
-    b = inputs.get("b")
-
+    print('Tool has been called')
     if a is None or b is None:
-        return "Error: Missing parameters 'a' or 'b'. Example usage: {'a': 5, 'b': 3}"
+        return "Error: Missing parameters 'a' or 'b'."
 
     try:
-        result = float(a) + float(b)
-        return f'The sum of {a} and {b} is {result}'
+        return f'The sum of {a} and {b} is {a+b}'
     except ValueError:
         return "Error: Both 'a' and 'b' must be numbers."
+    
+@tool
+def hello(username:str) -> str:
+    '''
+    Usefull for gretting a user
+    '''
+    print('Tool has been called')
+    return f'Hello {username}, I hope you are well today'
 
 # Función principal
 def main():
@@ -34,7 +36,7 @@ def main():
 
     # Modelo base y herramientas
     model = ChatOpenAI(temperature=0)
-    tools = [calculator]
+    tools = [calculator, hello]
 
     # Crear el agente estilo ReAct
     agent_executor = create_react_agent(model, tools)
